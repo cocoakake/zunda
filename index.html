@@ -2,74 +2,79 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>ずんだもんボタン タグ・カテゴリー対応版</title>
+  <title>ずんだもんボタン シンプル版</title>
   <style>
     body {
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      background: #e6fff0;
-      padding: 20px;
+      font-family: "Yu Gothic UI", "Segoe UI", sans-serif;
+      background: #fff;
+      color: #222;
+      padding: 30px 20px;
       text-align: center;
     }
     h1 {
-      color: #2e7d32;
-      margin-bottom: 10px;
+      font-weight: 600;
+      margin-bottom: 24px;
+      font-size: 1.8rem;
+      color: #111;
     }
-    #filters {
-      margin-bottom: 20px;
-    }
-    select, label {
-      margin: 0 10px 10px 0;
+    #search {
+      width: 90%;
+      max-width: 360px;
+      padding: 12px 14px;
       font-size: 1.1rem;
-      cursor: pointer;
+      border: 1.5px solid #bbb;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      outline-offset: 2px;
+      outline-color: #999;
+      transition: outline-color 0.2s;
+    }
+    #search:focus {
+      outline-color: #555;
     }
     #buttons {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 15px;
+      gap: 14px;
     }
     button {
-      background-color: #4caf50;
-      color: white;
+      background: #f0f0f0;
       border: none;
-      border-radius: 16px;
-      padding: 16px 28px;
-      font-size: 1.2rem;
-      font-weight: bold;
+      border-radius: 14px;
+      padding: 14px 26px;
+      font-size: 1.15rem;
+      color: #333;
       cursor: pointer;
-      box-shadow: 0 5px 8px rgba(0,0,0,0.2);
-      min-width: 140px;
       user-select: none;
-      transition: background-color 0.3s;
+      box-shadow: 0 0 0 rgba(0,0,0,0);
+      transition: background-color 0.25s, box-shadow 0.15s;
+      min-width: 130px;
     }
     button:hover, button:focus {
-      background-color: #388e3c;
+      background-color: #ddd;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       outline: none;
+    }
+    button:active {
+      background-color: #bbb;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.15);
     }
   </style>
 </head>
 <body>
-  <h1>ずんだもんボタン（タグ・カテゴリー対応）</h1>
-
-  <div id="filters">
-    <select id="categoryFilter">
-      <option value="all">すべてのカテゴリー</option>
-    </select>
-
-    <span id="tagFilters"></span>
-  </div>
+  <h1>ずんだもんボタン</h1>
+  <input type="text" id="search" placeholder="検索..." />
 
   <div id="buttons"></div>
 
   <script>
     let soundData = [];
-    let selectedCategory = 'all';
-    let selectedTags = new Set();
 
-    // ボタンを作成
     function createButton(item) {
       const btn = document.createElement('button');
       btn.textContent = item.label;
+      btn.setAttribute('data-label', item.label.toLowerCase());
       btn.onclick = () => {
         const audio = new Audio(`sounds/${item.file}`);
         audio.play();
@@ -77,89 +82,32 @@
       return btn;
     }
 
-    // フィルタリングしてボタン表示
-    function displayButtons() {
+    function displayButtons(filtered) {
       const container = document.getElementById('buttons');
       container.innerHTML = '';
-
-      let filtered = soundData.filter(item => {
-        const categoryMatch = selectedCategory === 'all' || item.category === selectedCategory;
-
-        const tagsMatch = [...selectedTags].every(tag => item.tags.includes(tag));
-
-        return categoryMatch && tagsMatch;
-      });
-
-      if (filtered.length === 0) {
-        container.textContent = '該当するボタンがありません';
-        return;
-      }
-
-      filtered.forEach(item => {
-        container.appendChild(createButton(item));
-      });
+      filtered.forEach(item => container.appendChild(createButton(item)));
     }
 
-    // カテゴリードロップダウン作成
-    function setupCategoryFilter() {
-      const categorySet = new Set(soundData.map(item => item.category));
-      const select = document.getElementById('categoryFilter');
-
-      categorySet.forEach(cat => {
-        const option = document.createElement('option');
-        option.value = cat;
-        option.textContent = cat;
-        select.appendChild(option);
-      });
-
-      select.addEventListener('change', e => {
-        selectedCategory = e.target.value;
-        displayButtons();
-      });
-    }
-
-    // タグチェックボックス作成
-    function setupTagFilters() {
-      const tagSet = new Set();
-      soundData.forEach(item => {
-        item.tags.forEach(t => tagSet.add(t));
-      });
-
-      const container = document.getElementById('tagFilters');
-      container.innerHTML = '';
-
-      tagSet.forEach(tag => {
-        const label = document.createElement('label');
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.value = tag;
-        checkbox.addEventListener('change', e => {
-          if (e.target.checked) {
-            selectedTags.add(tag);
-          } else {
-            selectedTags.delete(tag);
-          }
-          displayButtons();
-        });
-        label.appendChild(checkbox);
-        label.append(` ${tag} `);
-        container.appendChild(label);
-      });
-    }
-
-    // 初期読み込み
     fetch('sounds/soundlist.json')
       .then(res => res.json())
       .then(data => {
         soundData = data;
-        setupCategoryFilter();
-        setupTagFilters();
-        displayButtons();
+        displayButtons(soundData);
       })
       .catch(err => {
         document.getElementById('buttons').textContent = '読み込みエラー';
         console.error(err);
       });
+
+    document.getElementById('search').addEventListener('input', e => {
+      const keyword = e.target.value.trim().toLowerCase();
+      if (!keyword) {
+        displayButtons(soundData);
+        return;
+      }
+      const filtered = soundData.filter(item => item.label.toLowerCase().includes(keyword));
+      displayButtons(filtered);
+    });
   </script>
 </body>
 </html>

@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>ずんだもんボタン シンプル版</title>
+  <title>ずんだもんボタン シンプル改良版</title>
   <style>
     body {
       font-family: "Yu Gothic UI", "Segoe UI", sans-serif;
@@ -76,8 +76,19 @@
       btn.textContent = item.label;
       btn.setAttribute('data-label', item.label.toLowerCase());
       btn.onclick = () => {
-        const audio = new Audio(`sounds/${item.file}`);
-        audio.play();
+        // 拡張子をmp3に変えてみる例（wavが問題なら）
+        let audioPath = `sounds/${item.file}`;
+        // audioファイル名が.wavなら、mp3があればそっちを使う例（なければコメントアウトしてね）
+        // if (audioPath.endsWith('.wav')) {
+        //   audioPath = audioPath.replace('.wav', '.mp3');
+        // }
+
+        const audio = new Audio(audioPath);
+        audio.volume = 1.0;
+        audio.play().catch(e => {
+          console.error('音声再生エラー:', e);
+          alert('音声の再生に失敗しました。ファイル形式やパスを確認してください。');
+        });
       };
       return btn;
     }
@@ -85,17 +96,25 @@
     function displayButtons(filtered) {
       const container = document.getElementById('buttons');
       container.innerHTML = '';
+      if (filtered.length === 0) {
+        container.textContent = '該当するボタンがありません';
+        return;
+      }
       filtered.forEach(item => container.appendChild(createButton(item)));
     }
 
     fetch('sounds/soundlist.json')
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error('JSONファイル読み込み失敗');
+        return res.json();
+      })
       .then(data => {
         soundData = data;
         displayButtons(soundData);
       })
       .catch(err => {
-        document.getElementById('buttons').textContent = '読み込みエラー';
+        const container = document.getElementById('buttons');
+        container.textContent = '音声リストの読み込みエラー';
         console.error(err);
       });
 

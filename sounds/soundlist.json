@@ -1,0 +1,5 @@
+// sounds/soundlist.json
+[
+  { "id": "konnitiwa", "label": "こんにちはー", "file": "konnitiwa.mp3" },
+  { "id": "konbanwa", "label": "こんばんわー", "file": "konbanwa.mp3" }
+]

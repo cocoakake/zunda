@@ -1,50 +1,45 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>ずんだもんボタン</title>
   <style>
-    body {
-      font-family: "Segoe UI", sans-serif;
-      text-align: center;
-      background-color: #f0f8ff;
-      padding: 2em;
-    }
-    h1 {
-      color: #5f9ea0;
-    }
+    body { font-family: sans-serif; text-align: center; padding: 2em; background: #f5fff5; }
     button {
       margin: 1em;
       padding: 1em 2em;
       font-size: 1.2em;
-      border: none;
       border-radius: 12px;
-      background-color: #90ee90;
-      color: #333;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      border: none;
+      background: #c2f0c2;
+      cursor: pointer;
     }
-    button:hover {
-      background-color: #7cd17c;
-    }
+    button:hover { background: #a8e6a8; }
   </style>
 </head>
 <body>
   <h1>ずんだもんボタン🎵</h1>
-
-  <button onclick="playSound('uso')">うそでしょ！？</button>
-  <button onclick="playSound('kawaii')">かわいい〜！</button>
-  <button onclick="playSound('yay')">やったー！</button>
-
-  <audio id="uso" src="sounds/uso.mp3"></audio>
-  <audio id="kawaii" src="sounds/kawaii.mp3"></audio>
-  <audio id="yay" src="sounds/yatta.mp3"></audio>
+  <div id="buttons"></div>
 
   <script>
-    function playSound(id) {
-      const audio = document.getElementById(id);
-      audio.currentTime = 0;
-      audio.play();
-    }
+    fetch('sounds/soundlist.json')
+      .then(response => response.json())
+      .then(data => {
+        const container = document.getElementById('buttons');
+        data.forEach(item => {
+          const btn = document.createElement('button');
+          btn.textContent = item.label;
+          btn.onclick = () => {
+            const audio = new Audio(`sounds/${item.file}`);
+            audio.play();
+          };
+          container.appendChild(btn);
+        });
+      })
+      .catch(err => {
+        document.getElementById('buttons').innerHTML = '<p>読み込みエラー</p>';
+        console.error(err);
+      });
   </script>
 </body>
 </html>

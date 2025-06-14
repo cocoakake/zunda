@@ -1,4 +1,4 @@
 [
-  { "id": "konnitiwa", "label": "こんにちはー", "file": "konnitiwa.mp3", "category": "挨拶", "tags": ["挨拶", "昼","入室"] },
-   { "id": "konbanwa", "label": "こんばんはー", "file": "konbanwa.mp3", "category": "挨拶", "tags": ["挨拶", "夜","入室"] }
+  { "id": "konnitiwa", "label": "こんにちはー", "file": "konnitiwa.wav", "category": "挨拶", "tags": ["挨拶", "昼","入室"] },
+   { "id": "konbanwa", "label": "こんばんはー", "file": "konbanwa.wav", "category": "挨拶", "tags": ["挨拶", "夜","入室"] }
 ]
